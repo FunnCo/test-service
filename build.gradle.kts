@@ -21,6 +21,7 @@ dependencies {
 	implementation("org.springframework.boot:spring-boot-starter-security")
 	implementation("org.springframework.boot:spring-boot-starter-web")
 	implementation("com.fasterxml.jackson.module:jackson-module-kotlin")
+	implementation("org.springframework.kafka:spring-kafka")
 	implementation("org.jetbrains.kotlin:kotlin-reflect")
 	implementation("org.springframework.kafka:spring-kafka")
 	runtimeOnly("org.postgresql:postgresql")
@@ -30,6 +31,11 @@ dependencies {
 	implementation("io.jsonwebtoken:jjwt-impl:0.11.5")
 	implementation("io.jsonwebtoken:jjwt-api:0.11.5")
 	implementation("io.jsonwebtoken:jjwt-jackson:0.11.5")
+
+	implementation("com.vladmihalcea:hibernate-types-60:2.21.1")
+
+	implementation("com.squareup.retrofit2:retrofit:2.9.0")
+	implementation("com.squareup.retrofit2:converter-gson:2.9.0")
 }
 
 tasks.withType<KotlinCompile> {

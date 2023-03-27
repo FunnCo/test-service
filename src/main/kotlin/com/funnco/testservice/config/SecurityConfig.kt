@@ -8,12 +8,20 @@ import org.springframework.security.config.annotation.web.configuration.EnableWe
 import org.springframework.security.web.SecurityFilterChain
 import org.springframework.security.web.authentication.www.BasicAuthenticationFilter
 
+
+/**
+ * Класс, представляющий конфигурацию безопасности веб-приложения.
+ */
 @Configuration
 @EnableWebSecurity
 class SecurityConfig(val filter: AuthFilter) {
 
+    /**
+     * Метод, в котором происходит настройка безопасности приложения.
+     * @return цепочку фильтрова предшествующих обработке запроса.
+     */
     @Bean
     fun securityFilterChain(http: HttpSecurity): SecurityFilterChain{
-        return http.addFilterBefore(filter, BasicAuthenticationFilter::class.java).build()
+        return http.csrf().disable().addFilterBefore(filter, BasicAuthenticationFilter::class.java).build()
     }
 }

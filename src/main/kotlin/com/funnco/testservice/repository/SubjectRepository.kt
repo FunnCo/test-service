@@ -6,4 +6,6 @@ import org.springframework.data.repository.CrudRepository
 import java.util.*
 
 interface SubjectRepository : CrudRepository<SubjectEntity, UUID> {
+    fun existsByName(name: String): Boolean
+
 }

@@ -4,9 +4,16 @@ import jakarta.persistence.*
 import org.hibernate.annotations.GenericGenerator
 import java.util.*
 
+/**
+ * Класс представляет сущность типа вопроса.
+ */
 @Entity
 @Table(name = "question_type")
 class QuestionTypeEntity {
+
+    /**
+     * Уникальный идентификатор типа вопроса.
+     */
     @Id
     @GeneratedValue(generator = "UUID")
     @GenericGenerator(
@@ -16,6 +23,9 @@ class QuestionTypeEntity {
     @Column(name = "type_id", nullable = false)
     var typeId: UUID? = null
 
-    @Column(name = "name", nullable = false)
+    /**
+     * Название типа
+     */
+    @Column(name = "name", nullable = false, unique = true)
     var name: String? = null
 }

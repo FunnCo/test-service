@@ -5,5 +5,5 @@ import org.springframework.data.repository.CrudRepository
 import java.util.*
 
 interface QuestionTypeRepository : CrudRepository<QuestionTypeEntity, UUID> {
-
+    fun existsByName(name: String): Boolean
 }

@@ -1,9 +1,7 @@
 package com.funnco.testservice.filter
 
-import io.jsonwebtoken.Claims
-import io.jsonwebtoken.Jwts
-import io.jsonwebtoken.io.Decoders
-import io.jsonwebtoken.security.Keys
+import com.funnco.testservice.utils.JwtUtil
+
 import jakarta.servlet.FilterChain
 import jakarta.servlet.http.HttpServletRequest
 import jakarta.servlet.http.HttpServletResponse
@@ -14,41 +12,63 @@ import org.springframework.web.filter.OncePerRequestFilter
 import java.security.Key
 import java.util.*
 
+/**
+ * Фильтр авторизации для проверки токена доступа к защищенным ресурсам.
+ */
 @Component
 class AuthFilter : OncePerRequestFilter() {
 
-    val SECRET_KEY = "38792F423F4528482B4D6251655468566D597133743677397A24432646294A404E635266556A586E5A7234753778214125442A472D4B6150645367566B597033"
-
     private val logger = LoggerFactory.getLogger(this.javaClass.simpleName)
 
-    private fun isTokenValid(token: String): Boolean{
-        logger.info("trying to validate token $token")
+    /**
+     * Проверка валидности токена.
+     * @param token токен доступа
+     * @return true, если токен валиден, иначе false
+     */
+    private fun isTokenValid(token: String): Boolean {
         return try {
-            Jwts.parserBuilder().setSigningKey(getSigningKey()).build()
-                .parseClaimsJws(token).body.expiration.after(Date(System.currentTimeMillis()))
-        } catch (e: Exception){
+            JwtUtil.getExpirationDate(token).after(Date(System.currentTimeMillis()))
+        } catch (e: Exception) {
             logger.error("Error while parsing jwt key", e)
             false
         }
     }
 
-    private fun isRequestAllowed(request: HttpServletRequest, token: String): Boolean{
+    /**
+     * Проверка прав доступа на основании токена и URL запроса.
+     * @param request объект запроса
+     * @param token токен доступа
+     * @return true, если доступ разрешен, иначе false
+     */
+    private fun isRequestAllowed(request: HttpServletRequest, token: String): Boolean {
         try {
-            val role = Jwts.parserBuilder().setSigningKey(getSigningKey()).build().parseClaimsJws(token).body["userRole"] as String
-            if(request.requestURL.contains("student") && role == "STUDENT"){
+            val role = JwtUtil.getUserRole(token)
+            if (request.requestURL.contains("student")) {
                 return true
             }
-            if(request.requestURL.contains("teacher") && role == "TEACHER"){
+            if (request.requestURL.contains("teacher") && role == "TEACHER") {
+                return true
+            }
+            if (request.requestURL.contains("subject")) {
+                return true
+            }
+            if (request.requestURL.contains("question")) {
                 return true
             }
             logger.info("Request is not allowed")
             return false
-        } catch (e: Exception){
+        } catch (e: Exception) {
             logger.error("Error while parsing jwt key", e)
             return false
         }
     }
 
+    /**
+     * Фильтрация запроса для проверки авторизации.
+     * @param request объект запроса
+     * @param response объект ответа
+     * @param filterChain цепочка фильтров
+     */
     override fun doFilterInternal(
         request: HttpServletRequest,
         response: HttpServletResponse,
@@ -62,7 +82,7 @@ class AuthFilter : OncePerRequestFilter() {
 
         try {
             authDetails = authDetails.substring(7);
-            if(isTokenValid(authDetails) && isRequestAllowed(request, authDetails)){
+            if (isTokenValid(authDetails) && isRequestAllowed(request, authDetails)) {
                 filterChain.doFilter(request, response)
             } else {
                 response.sendError(HttpStatus.UNAUTHORIZED.value(), "Bad auth details")
@@ -70,10 +90,5 @@ class AuthFilter : OncePerRequestFilter() {
         } catch (e: Exception) {
             response.sendError(HttpStatus.INTERNAL_SERVER_ERROR.value(), "Internal server error: ${e.localizedMessage}")
         }
-    }
-
-    private fun getSigningKey(): Key {
-        val keyBytes = Decoders.BASE64.decode(SECRET_KEY)
-        return Keys.hmacShaKeyFor(keyBytes)
     }
 }

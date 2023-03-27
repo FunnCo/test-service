@@ -5,11 +5,17 @@ import jakarta.persistence.EmbeddedId
 import jakarta.persistence.Entity
 import jakarta.persistence.Table
 
+/**
+ * Класс, представляющий сущность допуска группы к тесту.
+ */
 @Entity
 @Table(name="testing_group")
 class TestingGroupEntity {
 
+    /**
+     * Уникальный идентификатор теста.
+     */
     @EmbeddedId
-    private var id : TestingGroupKey? = null
+    lateinit var id : TestingGroupKey
 
 }
